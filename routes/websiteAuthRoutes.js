@@ -162,8 +162,8 @@ router.post('/login', async (req, res) => {
 /**
  * @swagger
  * /api/website/onboarding:
- *   patch:
- *     summary: Complete onboarding details for website user
+ *   post:
+ *     summary: Update onboarding details for website user
  *     tags: [Website Authentication]
  *     requestBody:
  *       required: true
@@ -223,7 +223,7 @@ router.post('/login', async (req, res) => {
  *         description: User not found
  */
 
-router.patch("/onboarding", async (req, res) => {
+router.post("/onboarding", async (req, res) => {
   try {
     const { userId, ...updateFields } = req.body;
 
@@ -237,7 +237,7 @@ router.patch("/onboarding", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update only provided fields (not password / email / username)
+    // Update only provided values (ignore empty strings)
     Object.keys(updateFields).forEach(key => {
       if (updateFields[key] !== undefined && updateFields[key] !== "") {
         user[key] = updateFields[key];
@@ -255,6 +255,7 @@ router.patch("/onboarding", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 /**
  * @swagger
