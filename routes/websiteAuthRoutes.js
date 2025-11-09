@@ -80,19 +80,53 @@ const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w"
  */
 router.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    let user = await WebsiteUser.findOne({ username });
-    if (user) return res.status(400).json({ message: 'Username already exists' });
+    const { name, email, phone, password } = req.body;
+
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({ message: "Name, email, phone and password are required." });
+    }
+
+    // Derive username from email
+    const username = email.split('@')[0].toLowerCase();
+
+    // Check if already exists
+    let user = await WebsiteUser.findOne({ email });
+    if (user) return res.status(400).json({ message: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    user = new WebsiteUser({ ...req.body, password: hashedPassword });
+
+    // Insert record with placeholders for future onboarding update
+    user = new WebsiteUser({
+      name,
+      email,
+      phone,
+      username,
+      password: hashedPassword,
+
+      // Temporary placeholder values:
+      brandName: "Not Set",
+      tagline: "Not Set",
+      logo: "",
+      differentiator: "Not Set",
+      targetAudience: "Not Set",
+      location: "Not Set",
+      tone: "Not Set",
+      category: "Not Set",
+      subCategory: "Not Set"
+    });
+
     await user.save();
 
-    res.status(201).json({ message: 'Website user registered successfully' });
+    res.status(201).json({
+      message: "Registered successfully. Continue onboarding.",
+      userId: user._id
+    });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 /**
  * @swagger
