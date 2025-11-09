@@ -9,15 +9,20 @@ const router = express.Router();
 // const webhookUrl = "https://hook.eu2.make.com/81agu3rgxopwp2slod2vrzi9kxr8wkjo";
 // const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook-test/5f651680-d892-46a0-ac67-cc5c0363867b";
 // const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook/5f651680-d892-46a0-ac67-cc5c0363867b";
-// const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook/77bb8416-2b6e-42c3-8503-d27cb9ff1fbe"
 const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w"
 
+/**
+ * @swagger
+ * tags:
+ *   name: Website Authentication
+ *   description: Website user registration and login
+ */
 
 /**
  * @swagger
  * /api/website/register:
  *   post:
- *     summary: Register a new website user
+ *     summary: Register a new website user (basic signup)
  *     tags: [Website Authentication]
  *     requestBody:
  *       required: true
@@ -26,92 +31,76 @@ const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w"
  *           schema:
  *             type: object
  *             required:
- *               - brandName
- *               - category
- *               - subCategory
- *               - username
+ *               - fullName
+ *               - email
+ *               - phone
  *               - password
  *             properties:
- *               brandName:
+ *               fullName:
  *                 type: string
- *                 example: FitFlow Yoga
- *               tagline:
+ *                 example: John Doe
+ *               email:
  *                 type: string
- *                 example: Flow into your best self
- *               logo:
+ *                 example: johndoe@example.com
+ *               phone:
  *                 type: string
- *                 example: https://example.com/logo.png
- *               differentiator:
- *                 type: string
- *                 example: Morning-only yoga classes
- *               targetAudience:
- *                 type: string
- *                 example: Working professionals
- *               location:
- *                 type: string
- *                 example: New York
- *               tone:
- *                 type: string
- *                 example: Calming
- *               category:
- *                 type: string
- *                 example: Wellness
- *               subCategory:
- *                 type: string
- *                 example: Yoga
- *               username:
- *                 type: string
- *                 example: fitflow_admin
+ *                 example: 9876543210
  *               password:
  *                 type: string
- *                 example: secret123
+ *                 example: myStrongPass123
  *     responses:
  *       201:
  *         description: Website user registered successfully
  *       400:
- *         description: User already exists
+ *         description: User already exists or missing required fields
  */
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { fullName, email, phone, password } = req.body;
 
-    if (!name || !email || !phone || !password) {
-      return res.status(400).json({ message: "Name, email, phone and password are required." });
+    if (!fullName || !email || !phone || !password) {
+      return res.status(400).json({ message: 'Full Name, Email, Phone and Password are required' });
     }
 
-    // Derive username from email
+    // Check if user already exists
+    let existingUser = await WebsiteUser.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+
+    // Generate username from email
     const username = email.split('@')[0].toLowerCase();
 
-    // Check if already exists
-    let user = await WebsiteUser.findOne({ email });
-    if (user) return res.status(400).json({ message: 'Email already exists' });
-
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert record with placeholders for future onboarding update
-    user = new WebsiteUser({
-      name,
+    // Create user with onboarding fields empty
+    const user = new WebsiteUser({
+      fullName,
       email,
       phone,
-      username,
       password: hashedPassword,
+      username,
 
-      // Temporary placeholder values:
-      brandName: "Not Set",
-      tagline: "Not Set",
-      logo: "",
-      differentiator: "Not Set",
-      targetAudience: "Not Set",
-      location: "Not Set",
-      tone: "Not Set",
-      category: "Not Set",
-      subCategory: "Not Set"
+      // Onboarding fields (to be filled later)
+      category: null,
+      subCategory: null,
+      brandName: null,
+      businessName: null,
+      businessEmail: null,
+      businessPhone: null,
+      tagline: null,
+      targetAudience: null,
+      location: null,
+      logo: null,
+      tone: null,
+      platform: null
     });
 
     await user.save();
 
     res.status(201).json({
-      message: "Registered successfully. Continue onboarding.",
+      message: 'Registered successfully. Continue onboarding.',
       userId: user._id
     });
 
@@ -169,6 +158,104 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+/**
+ * @swagger
+ * /api/website/onboarding:
+ *   patch:
+ *     summary: Complete onboarding details for website user
+ *     tags: [Website Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - category
+ *               - subCategory
+ *               - brandName
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 example: 67a32f8c91d2a6df1f5a456b
+ *               category:
+ *                 type: string
+ *                 example: Health & Wellness
+ *               subCategory:
+ *                 type: string
+ *                 example: Yoga Studio
+ *               brandName:
+ *                 type: string
+ *                 example: FitZen Yoga
+ *               businessName:
+ *                 type: string
+ *                 example: FitZen Yoga Studios Pvt Ltd
+ *               businessEmail:
+ *                 type: string
+ *                 example: contact@fitzenyoga.com
+ *               businessPhone:
+ *                 type: string
+ *                 example: 9876543210
+ *               tagline:
+ *                 type: string
+ *                 example: Find your calm, every morning
+ *               targetAudience:
+ *                 type: string
+ *                 example: Working professionals & homemakers
+ *               location:
+ *                 type: string
+ *                 example: Bangalore, India
+ *               logo:
+ *                 type: string
+ *                 example: https://yourcdn.com/logo.png
+ *               tone:
+ *                 type: string
+ *                 example: Calming
+ *               platform:
+ *                 type: string
+ *                 example: Instagram
+ *     responses:
+ *       200:
+ *         description: Onboarding completed successfully
+ *       404:
+ *         description: User not found
+ */
+
+router.patch("/onboarding", async (req, res) => {
+  try {
+    const { userId, ...updateFields } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    const user = await WebsiteUser.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update only provided fields (not password / email / username)
+    Object.keys(updateFields).forEach(key => {
+      if (updateFields[key] !== undefined && updateFields[key] !== "") {
+        user[key] = updateFields[key];
+      }
+    });
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Onboarding completed successfully",
+      user
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 /**
  * @swagger
