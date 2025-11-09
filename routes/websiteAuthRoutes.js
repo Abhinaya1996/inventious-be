@@ -15,13 +15,6 @@ const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w"
 
 /**
  * @swagger
- * tags:
- *   name: Website Authentication
- *   description: Website user registration and login
- */
-
-/**
- * @swagger
  * /api/website/register:
  *   post:
  *     summary: Register a new website user
