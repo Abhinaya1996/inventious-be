@@ -5,6 +5,7 @@ const websiteUserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   phone: { type: String },
   password: { type: String },
+  username: { type: String },
 
   brandName: { type: String },
   businessName: { type: String },
