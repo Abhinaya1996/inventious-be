@@ -1,32 +1,26 @@
 const mongoose = require('mongoose');
 
 const websiteUserSchema = new mongoose.Schema({
-  // Registration Fields
-  fullName: { type: String, required: true },
-  email: { type: String, unique: true, sparse: true }, // sparse prevents duplicate null errors
+  fullName: { type: String },
+  email: { type: String, unique: true },
   phone: { type: String },
-  password: { type: String, required: true },
+  password: { type: String },
 
-  // Use email prefix or phone as system username
-  username: { type: String, unique: true, required: true },
+  brandName: { type: String },
+  businessName: { type: String },
+  businessEmail: { type: String },
+  businessPhone: { type: String },
 
-  // Onboarding Fields (not required at registration)
-  category: { type: String, default: null },
-  subCategory: { type: String, default: null },
+  tagline: { type: String },
+  differentiator: { type: String }, // ✅ ADDED
+  targetAudience: { type: String },
+  location: { type: String },
+  tone: { type: String },
+  platform: { type: String },
 
-  brandName: { type: String, default: null },
-  businessName: { type: String, default: null },
-
-  businessEmail: { type: String, default: null },
-  businessPhone: { type: String, default: null },
-
-  tagline: { type: String, default: null },
-  targetAudience: { type: String, default: null },
-  location: { type: String, default: null },
-
-  logo: { type: String, default: null },
-  tone: { type: String, default: null },   // mood / tone preference
-  platform: { type: String, default: null }, // Facebook / Instagram / LinkedIn etc.
+  category: { type: String },
+  subCategory: { type: String },
+  logo: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('WebsiteUser', websiteUserSchema);
