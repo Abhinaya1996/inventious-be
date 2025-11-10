@@ -511,9 +511,9 @@ Make sure the image reflects the brand’s tone and connects emotionally with th
  * @swagger
  * /api/website/edit-image:
  *   post:
- *     summary: Send image edit request to Make webhook
+ *     summary: Edit the generated brand image using brand context and edit instructions
  *     tags: [Website API's]
- *     description: Takes an image and a text instruction describing the required edits and sends it to Make webhook for processing.
+ *     description: Takes existing brand prompt, image URL, and edit instruction, then forwards everything to Make.com webhook for processing.
  *     requestBody:
  *       required: true
  *       content:
@@ -521,20 +521,47 @@ Make sure the image reflects the brand’s tone and connects emotionally with th
  *           schema:
  *             type: object
  *             required:
+ *               - brandName
+ *               - differentiator
+ *               - targetAudience
+ *               - toneMood
+ *               - category
+ *               - subCategory
+ *               - generatedPrompt
  *               - image
  *               - editText
  *             properties:
+ *               brandName:
+ *                 type: string
+ *               tagline:
+ *                 type: string
+ *               differentiator:
+ *                 type: string
+ *               targetAudience:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               toneMood:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               subCategory:
+ *                 type: string
+ *               platform:
+ *                 type: string
+ *               logoUrl:
+ *                 type: string
+ *               generatedPrompt:
+ *                 type: string
  *               image:
  *                 type: string
- *                 description: Image URL or Base64 Data URI
- *                 example: "https://example.com/image.jpg"
+ *                 description: URL of the image that needs modification
  *               editText:
  *                 type: string
- *                 description: Text describing what should be changed in the image
- *                 example: "Add more greenery and increase brightness"
+ *                 description: Instruction on how to change the image
  *     responses:
  *       200:
- *         description: Edit request forwarded successfully
+ *         description: Edit request sent successfully
  *       400:
  *         description: Missing required fields
  *       500:
@@ -542,30 +569,68 @@ Make sure the image reflects the brand’s tone and connects emotionally with th
  */
 router.post("/edit-image", async (req, res) => {
   try {
-    const { image, editText } = req.body;
+    const {
+      brandName,
+      tagline,
+      differentiator,
+      targetAudience,
+      location,
+      toneMood,
+      category,
+      subCategory,
+      platform,
+      logoUrl,
+      generatedPrompt,
+      image,
+      editText
+    } = req.body;
 
-    // Validation
-    if (!image || !editText) {
-      return res.status(400).json({ message: "image and editText are required" });
+    // Validate required fields
+    if (
+      !brandName ||
+      !differentiator ||
+      !targetAudience ||
+      !toneMood ||
+      !category ||
+      !subCategory ||
+      !generatedPrompt ||
+      !image ||
+      !editText
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Prepare data to send to Make webhook
+    // Prepare data for Make webhook
     const webhookData = {
+      brandName,
+      tagline: tagline || "",
+      differentiator,
+      targetAudience,
+      location: location || "",
+      toneMood,
+      category,
+      subCategory,
+      platform: platform || "Landscape",
+      logoUrl: logoUrl || "",
+      generatedPrompt,
       image,
       editText
     };
 
+    // Send to Make
     const webhookResponse = await axios.post(webhookUrl2, webhookData);
 
     res.status(200).json({
-      message: "Edit request sent successfully",
+      message: "Image edit request sent successfully",
       webhookResponse: webhookResponse.data,
     });
+
   } catch (err) {
     console.error("❌ Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
+
 
 /**
  * @swagger
