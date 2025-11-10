@@ -9,7 +9,8 @@ const router = express.Router();
 // const webhookUrl = "https://hook.eu2.make.com/81agu3rgxopwp2slod2vrzi9kxr8wkjo";
 // const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook-test/5f651680-d892-46a0-ac67-cc5c0363867b";
 // const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook/5f651680-d892-46a0-ac67-cc5c0363867b";
-const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w"
+const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w";
+const webhookUrl2 = "https://hook.us2.make.com/r5bnzl07ty6cyhmz9mhvvkv75at66voq";
 
 /**
  * @swagger
@@ -498,6 +499,66 @@ Make sure the image reflects the brand’s tone and connects emotionally with th
     res.status(200).json({
       message: "Prompt generated and sent to Make successfully",
       prompt: prompt.trim(),
+      webhookResponse: webhookResponse.data,
+    });
+  } catch (err) {
+    console.error("❌ Error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/website/edit-image:
+ *   post:
+ *     summary: Send image edit request to Make webhook
+ *     tags: [Website API's]
+ *     description: Takes an image and a text instruction describing the required edits and sends it to Make webhook for processing.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - image
+ *               - editText
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 description: Image URL or Base64 Data URI
+ *                 example: "https://example.com/image.jpg"
+ *               editText:
+ *                 type: string
+ *                 description: Text describing what should be changed in the image
+ *                 example: "Add more greenery and increase brightness"
+ *     responses:
+ *       200:
+ *         description: Edit request forwarded successfully
+ *       400:
+ *         description: Missing required fields
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/edit-image", async (req, res) => {
+  try {
+    const { image, editText } = req.body;
+
+    // Validation
+    if (!image || !editText) {
+      return res.status(400).json({ message: "image and editText are required" });
+    }
+
+    // Prepare data to send to Make webhook
+    const webhookData = {
+      image,
+      editText
+    };
+
+    const webhookResponse = await axios.post(webhookUrl2, webhookData);
+
+    res.status(200).json({
+      message: "Edit request sent successfully",
       webhookResponse: webhookResponse.data,
     });
   } catch (err) {
