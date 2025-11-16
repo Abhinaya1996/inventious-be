@@ -9,7 +9,7 @@ const adminSwaggerOptions = {
       version: '1.0.0',
       description: 'Admin authentication APIs',
     },
-    servers: [{ url: 'http://localhost:5001' }],
+    servers: [{ url: 'https://api.inventious.co' }],
   },
   apis: ['./routes/authRoutes.js'], // Admin API routes
 };
