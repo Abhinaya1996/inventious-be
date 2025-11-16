@@ -9,7 +9,7 @@ const websiteSwaggerOptions = {
       version: '1.0.0',
       description: 'Website user registration and authentication APIs',
     },
-    servers: [{ url: 'https://api.inventious.co/' }],
+    servers: [{ url: 'https://api.inventious.co' }],
   },
   apis: ['./routes/websiteAuthRoutes.js'], // Website API routes
 };
