@@ -9,8 +9,11 @@ const router = express.Router();
 // const webhookUrl = "https://hook.eu2.make.com/81agu3rgxopwp2slod2vrzi9kxr8wkjo";
 // const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook-test/5f651680-d892-46a0-ac67-cc5c0363867b";
 // const webhookUrl = "https://n8n.srv1051234.hstgr.cloud/webhook/5f651680-d892-46a0-ac67-cc5c0363867b";
-const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w";
-const webhookUrl2 = "https://hook.us2.make.com/r5bnzl07ty6cyhmz9mhvvkv75at66voq";
+// const webhookUrl = "https://hook.us2.make.com/midowsmy7mryxl9keleeqvybrliz0c9w";
+// const webhookUrl2 = "https://hook.us2.make.com/r5bnzl07ty6cyhmz9mhvvkv75at66voq";
+
+const createWebhook = "https://n8n.iide.co/webhook/322a9ab7-2472-4b27-aab6-1772c226b5c5";
+const editWebHook = "https://n8n.iide.co/webhook/1e60e38e-4d59-4ef1-af6c-a4246b22e3f3";
 
 /**
  * @swagger
@@ -493,7 +496,7 @@ Make sure the image reflects the brand’s tone and connects emotionally with th
       generatedPrompt: prompt.trim(),
     };
 
-    const webhookResponse = await axios.post(webhookUrl, webhookData);
+    const webhookResponse = await axios.post(createWebhook, webhookData);
 
     // Respond back to client
     res.status(200).json({
@@ -618,7 +621,7 @@ router.post("/edit-image", async (req, res) => {
     };
 
     // Send to Make
-    const webhookResponse = await axios.post(webhookUrl2, webhookData);
+    const webhookResponse = await axios.post(editWebHook, webhookData);
 
     res.status(200).json({
       message: "Image edit request sent successfully",
