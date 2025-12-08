@@ -493,7 +493,7 @@ router.post("/generate-prompt", async (req, res) => {
     };
     const data = req.body;
     const webhookResponse = await axios.post(createWebhook, data);
-
+ 
     // Respond back to client
     res.status(200).json({
       message: "Prompt generated and sent to Make successfully",
