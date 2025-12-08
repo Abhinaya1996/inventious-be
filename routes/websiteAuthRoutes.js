@@ -475,15 +475,7 @@ router.post("/generate-prompt", async (req, res) => {
     }
 
     // Build AI image generation prompt dynamically
-    const prompt = `
-Create a high-quality, visually appealing ${toneMood.toLowerCase()} themed image for a brand named "${brandName}".
-Category: ${category}, Subcategory: ${subCategory}.
-Tagline: "${tagline || "No tagline provided"}".
-Differentiator: ${differentiator}.
-Target Audience: ${targetAudience}.
-Location: ${location || "Not specified"}.
-Make sure the image reflects the brand’s tone and connects emotionally with the audience.
-`;
+    const prompt = ``;
 
     // Send data to Make webhook
     const webhookData = {
@@ -499,8 +491,8 @@ Make sure the image reflects the brand’s tone and connects emotionally with th
       platform: platform || "Landscape",
       generatedPrompt: prompt.trim(),
     };
-
-    const webhookResponse = await axios.post(createWebhook, webhookData);
+    const data = req.body;
+    const webhookResponse = await axios.post(createWebhook, data);
 
     // Respond back to client
     res.status(200).json({
